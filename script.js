@@ -25,40 +25,44 @@ const questions = [
     answer: "Ottawa",
   },
 ];
+
 // DOM references
 const questionsElement = document.getElementById("questions");
 const submitButton = document.getElementById("submit");
 const scoreElement = document.getElementById("score");
 
-// Retrieve saved answers from session storage
+// Get saved progress from sessionStorage
 let userAnswers = JSON.parse(sessionStorage.getItem("progress")) || [];
 
-// Display questions with persisted answers
+// Load previous score if available
+const lastScore = localStorage.getItem("score");
+if (lastScore !== null) {
+  scoreElement.textContent = `Your score is ${lastScore} out of ${questions.length}.`;
+}
+
+// Render quiz questions
 function renderQuestions() {
-  questionsElement.innerHTML = ""; // Clear previous content
-  for (let i = 0; i < questions.length; i++) {
-    const question = questions[i];
+  questionsElement.innerHTML = ""; // clear previous content
+
+  questions.forEach((question, i) => {
     const questionDiv = document.createElement("div");
 
     const questionText = document.createElement("p");
     questionText.textContent = question.question;
     questionDiv.appendChild(questionText);
 
-    for (let j = 0; j < question.choices.length; j++) {
-      const choice = question.choices[j];
-
+    question.choices.forEach((choice) => {
       const label = document.createElement("label");
       const input = document.createElement("input");
+
       input.type = "radio";
       input.name = `question-${i}`;
       input.value = choice;
 
-      // Set checked if answer previously selected
       if (userAnswers[i] === choice) {
         input.checked = true;
       }
 
-      // Save to session storage on change
       input.addEventListener("change", () => {
         userAnswers[i] = input.value;
         sessionStorage.setItem("progress", JSON.stringify(userAnswers));
@@ -68,34 +72,24 @@ function renderQuestions() {
       label.appendChild(document.createTextNode(choice));
       questionDiv.appendChild(label);
       questionDiv.appendChild(document.createElement("br"));
-    }
+    });
 
     questionsElement.appendChild(questionDiv);
-  }
+  });
 }
 
-// Submit handler
+// Handle submit
 submitButton.addEventListener("click", () => {
   let score = 0;
 
-  for (let i = 0; i < questions.length; i++) {
-    if (userAnswers[i] === questions[i].answer) {
+  questions.forEach((q, i) => {
+    if (userAnswers[i] && userAnswers[i] === q.answer) {
       score++;
     }
-  }
+  });
 
-  // Display score
   scoreElement.textContent = `Your score is ${score} out of ${questions.length}.`;
-
-  // Save score to local storage
   localStorage.setItem("score", score);
 });
 
-// On load, show last score if present
-const lastScore = localStorage.getItem("score");
-if (lastScore !== null) {
-  scoreElement.textContent = `Your score is ${lastScore} out of ${questions.length}.`;
-}
-
-// Render the questions
 renderQuestions();
