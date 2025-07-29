@@ -31,18 +31,18 @@ const questionsElement = document.getElementById("questions");
 const submitButton = document.getElementById("submit");
 const scoreElement = document.getElementById("score");
 
-// Get saved progress from sessionStorage
+// Get saved progress
 let userAnswers = JSON.parse(sessionStorage.getItem("progress")) || [];
 
-// Load previous score if available
+// Load previous score
 const lastScore = localStorage.getItem("score");
 if (lastScore !== null) {
   scoreElement.textContent = `Your score is ${lastScore} out of ${questions.length}.`;
 }
 
-// Render quiz questions
+// Render questions
 function renderQuestions() {
-  questionsElement.innerHTML = ""; // clear previous content
+  questionsElement.innerHTML = "";
 
   questions.forEach((question, i) => {
     const questionDiv = document.createElement("div");
@@ -61,6 +61,7 @@ function renderQuestions() {
 
       if (userAnswers[i] === choice) {
         input.checked = true;
+        input.setAttribute("checked", "true"); // ✅ needed for Cypress
       }
 
       input.addEventListener("change", () => {
